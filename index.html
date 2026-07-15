@@ -113,10 +113,13 @@ button{cursor:pointer}
 .character .leg{height:28px;top:60px;background:#392b24}
 .character .leg.l{left:18px}.character .leg.r{right:18px}
 .character.walk .arm.l,.character.walk .leg.r{animation:limb .35s infinite alternate}.character.walk .arm.r,.character.walk .leg.l{animation:limb .35s infinite alternate-reverse}
-@keyframes limb{to{transform:rotate(22deg)}}
+@keyframes limb{to{transform:rotate(26deg)}}
+.character.walk{animation:bodyBob .34s ease-in-out infinite alternate}
+@keyframes bodyBob{to{margin-top:-4px;filter:drop-shadow(0 11px 7px rgba(0,0,0,.25))}}
+.character.idle .head{animation:lookAround 2.8s ease-in-out infinite}
+@keyframes lookAround{0%,35%,100%{transform:translateX(0)}55%{transform:translateX(3px)}75%{transform:translateX(-3px)}}
 .character .name{position:absolute;left:50%;top:82px;transform:translateX(-50%);white-space:nowrap;color:#fff;font-weight:900;font-size:14px;text-shadow:0 2px 4px #000}
-.character.npc{animation:npcwalk 4.5s ease-in-out infinite alternate}
-@keyframes npcwalk{to{transform:translateX(70px)}}
+
 
 #player{--robe:#1e68b1;--skin:#d3a178;--hair:#2b211c}
 #socrates{--robe:#eee4cf;--skin:#dfc6a5;--hair:#6a6058}
@@ -152,6 +155,17 @@ button.danger{background:linear-gradient(#b74747,#762020);box-shadow:0 5px 0 #3e
 .rank-row{display:grid;grid-template-columns:55px 1fr 90px 80px;gap:8px;padding:10px;border-bottom:1px solid #426080;text-align:left}.rank-row.head{background:#c58a35;color:#08101c;border-radius:10px;font-weight:900}
 .hidden{display:none!important}
 @media(max-width:700px){h1{font-size:33px}.panel{padding:18px}.dialog{bottom:108px;padding:12px}.dialog .portrait{width:90px;min-width:90px;height:100px}#mission{top:100px;width:245px;font-size:13px}.rank-row{grid-template-columns:40px 1fr 68px 60px;font-size:13px}}
+
+.collectible{position:absolute;z-index:11;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:29px;border-radius:50%;cursor:pointer;filter:drop-shadow(0 7px 7px rgba(0,0,0,.28));animation:collectibleFloat 1.25s ease-in-out infinite}
+.collectible.gold{background:radial-gradient(circle at 35% 30%,#fff9ad,#ffc928 48%,#b87000 75%);border:3px solid #8d5800;box-shadow:0 0 18px #ffd83c}
+.collectible.heart{background:radial-gradient(circle at 35% 30%,#ffb3bd,#e92f4d 55%,#9c102a 78%);border:3px solid #7c0b1f;box-shadow:0 0 18px #ff516a}
+.collectible.hourglass{background:radial-gradient(circle at 35% 30%,#d9f7ff,#46bfe4 54%,#176a8d 80%);border:3px solid #12536d;box-shadow:0 0 18px #63d9ff}
+@keyframes collectibleFloat{50%{transform:translateY(-11px) scale(1.08)}}
+.collectible.collected{animation:collectPop .35s forwards}
+@keyframes collectPop{to{transform:scale(2);opacity:0}}
+.damageFlash{animation:damageFlash .4s}
+@keyframes damageFlash{50%{filter:brightness(2) saturate(2)}}
+
 </style>
 </head>
 <body>
@@ -189,7 +203,16 @@ button.danger{background:linear-gradient(#b74747,#762020);box-shadow:0 5px 0 #3e
 
   <div class="coin" style="left:720px;top:565px"></div><div class="coin" style="left:825px;top:675px;animation-delay:.3s"></div><div class="coin" style="left:1260px;top:580px;animation-delay:.7s"></div><div class="coin" style="left:1425px;top:700px;animation-delay:1s"></div><div class="coin" style="left:1820px;top:660px;animation-delay:.5s"></div><div class="coin" style="left:1180px;top:1040px;animation-delay:.9s"></div>
 
-  <div id="player" class="character"><i class="shadow"></i><i class="body"></i><i class="head"></i><i class="hair"></i><i class="arm l"></i><i class="arm r"></i><i class="leg l"></i><i class="leg r"></i><b class="name"></b></div>
+  
+<div id="gold1" class="collectible gold" style="left:715px;top:520px">🪙</div>
+<div id="gold2" class="collectible gold" style="left:1280px;top:700px;animation-delay:.5s">🪙</div>
+<div id="gold3" class="collectible gold" style="left:1880px;top:740px;animation-delay:.9s">🪙</div>
+<div id="heart1" class="collectible heart" style="left:930px;top:740px;animation-delay:.3s">❤️</div>
+<div id="heart2" class="collectible heart" style="left:1740px;top:1000px;animation-delay:.8s">❤️</div>
+<div id="time1" class="collectible hourglass" style="left:1180px;top:520px;animation-delay:.4s">⏳</div>
+<div id="time2" class="collectible hourglass" style="left:1550px;top:650px;animation-delay:1s">⏳</div>
+
+<div id="player" class="character idle"><i class="shadow"></i><i class="body"></i><i class="head"></i><i class="hair"></i><i class="arm l"></i><i class="arm r"></i><i class="leg l"></i><i class="leg r"></i><b class="name"></b></div>
   <div id="socrates" class="character npc" style="left:300px;top:690px"><i class="shadow"></i><i class="body"></i><i class="head"></i><i class="hair"></i><i class="arm l"></i><i class="arm r"></i><i class="leg l"></i><i class="leg r"></i><b class="name">Socrates</b></div>
   <div id="plato" class="character npc" style="left:1010px;top:380px;animation-delay:1s"><i class="shadow"></i><i class="body"></i><i class="head"></i><i class="hair"></i><i class="arm l"></i><i class="arm r"></i><i class="leg l"></i><i class="leg r"></i><b class="name">Plato</b></div>
   <div id="athlete" class="character npc" style="left:1790px;top:470px;animation-delay:2s"><i class="shadow"></i><i class="body"></i><i class="head"></i><i class="hair"></i><i class="arm l"></i><i class="arm r"></i><i class="leg l"></i><i class="leg r"></i><b class="name">Atlet</b></div>
@@ -197,7 +220,7 @@ button.danger{background:linear-gradient(#b74747,#762020);box-shadow:0 5px 0 #3e
   <div id="architect" class="character npc" style="left:1080px;top:1080px;animation-delay:1.5s"><i class="shadow"></i><i class="body"></i><i class="head"></i><i class="hair"></i><i class="arm l"></i><i class="arm r"></i><i class="leg l"></i><i class="leg r"></i><b class="name">Arkitek</b></div>
 </div></div>
 
-<div id="hud" class="hidden"><div class="brand">GREEK ODYSSEY ULTIMATE</div><div class="pill">👤 <span id="hn"></span></div><div class="pill">⭐ <span id="score">0</span></div><div class="pill">💎 <span id="crystals">0</span>/5</div><div class="pill">❓ <span id="answered">0</span>/15</div><div class="pill">🎯 <span id="activities">0</span>/5</div><div class="pill">⏱ <span id="timer">15:00</span></div><button id="sound" class="pill">🔊</button></div>
+<div id="hud" class="hidden"><div class="brand">GREEK ODYSSEY ULTIMATE</div><div class="pill">👤 <span id="hn"></span></div><div class="pill">⭐ <span id="score">0</span></div><div class="pill">💎 <span id="crystals">0</span>/5</div><div class="pill">❓ <span id="answered">0</span>/15</div><div class="pill">🎯 <span id="activities">0</span>/5</div><div class="pill">❤️ <span id="lives">3</span></div><div class="pill">⏱ <span id="timer">15:00</span></div><button id="sound" class="pill">🔊</button></div>
 <div id="mission" class="hidden"><small>MISI SEMASA</small><b id="missionText">Pergi ke Agora Athens dan jawab 3 soalan Socrates.</b></div>
 
 <div id="start" class="overlay"><div class="panel"><div class="crest">🏛️</div><h1>GREEK ODYSSEY</h1><h2>Ultimate Edition</h2><p>Setiap stesen ada aktiviti ringkas dahulu, kemudian 3 soalan mencabar. Jawapan berubah kedudukan setiap kali.</p><input id="nameInput" placeholder="Nama murid"><input id="classInput" placeholder="Kelas"><button id="startBtn">MULA PENGEMBARAAN</button><button id="rankStart" class="dark">🏆 LIHAT RANKING</button></div></div>
@@ -215,7 +238,7 @@ button.danger{background:linear-gradient(#b74747,#762020);box-shadow:0 5px 0 #3e
 <script>
 const $=id=>document.getElementById(id);
 const map=$('map'),player=$('player');
-const G={run:false,done:false,name:'',kelas:'',x:500,y:760,score:0,crystals:0,answered:0,activities:0,time:900,start:0,keys:{},sound:true,camX:0,camY:0,completed:new Set(),activityDone:new Set(),idx:{agora:0,academy:0,olympia:0,sparta:0,parthenon:0}};
+const G={run:false,done:false,name:'',kelas:'',x:500,y:760,score:0,crystals:0,answered:0,activities:0,lives:3,time:900,start:0,keys:{},collectibles:new Set(),lastHit:0,sound:true,camX:0,camY:0,completed:new Set(),activityDone:new Set(),idx:{agora:0,academy:0,olympia:0,sparta:0,parthenon:0}};
 const stations=[
 {id:'agora',el:'socrates',npc:'Socrates',icon:'👴',x:335,y:730,zone:'Agora Athens',activity:'scrolls',activityText:'Kutip 5 gulungan ilmu sebelum menjawab soalan.',q:[
 ['Mengapakah demokrasi Athens penting kepada politik moden?',[['Rakyat terlibat dalam membuat keputusan negara',1],['Tentera menguasai semua urusan negara',0],['Undang-undang tidak lagi diperlukan',0]]],
@@ -271,7 +294,7 @@ function update(dt){
  G.x=Math.max(20,Math.min(2140,G.x));G.y=Math.max(80,Math.min(1320,G.y));setPlayer();updateCamera();
  G.time=Math.max(0,900-(performance.now()-G.start)/1000);if(G.time<=0)finish();refresh();
 }
-function refresh(){ $('score').textContent=G.score;$('crystals').textContent=G.crystals;$('answered').textContent=G.answered;$('activities').textContent=G.activities;const m=Math.floor(G.time/60),s=Math.floor(G.time%60);$('timer').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` }
+function refresh(){ $('score').textContent=G.score;$('crystals').textContent=G.crystals;$('answered').textContent=G.answered;$('activities').textContent=G.activities;$('lives').textContent=G.lives;const m=Math.floor(G.time/60),s=Math.floor(G.time%60);$('timer').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` }
 function mission(){const s=stations.find(v=>!G.completed.has(v.id));$('missionText').textContent=s?`Pergi ke ${s.zone}. Selesaikan aktiviti dan 3 soalan ${s.npc}.`:'Semua stesen selesai!'}
 function interact(){
  if(!G.run)return;let st=null,d=90;stations.forEach(s=>{const z=Math.hypot(G.x-s.x,G.y-s.y);if(z<d){d=z;st=s}});if(!st){toast('Dekati NPC dahulu',false);return}openStation(st)
@@ -303,10 +326,10 @@ function toast(t,ok){const e=$('toast');e.textContent=t;e.className='toast '+(ok
 function fmt(t){return `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`}
 function ranks(){return JSON.parse(localStorage.getItem('greekUltimateRank')||'[]')}
 function saveRank(el){const a=ranks();a.push({n:G.name,k:G.kelas,s:G.score,t:el});a.sort((x,y)=>y.s-x.s||x.t-y.t);localStorage.setItem('greekUltimateRank',JSON.stringify(a.slice(0,30)))}
-function finish(){if(G.done)return;G.done=true;stopMusic();const el=Math.min(900,900-G.time);G.score+=Math.floor(G.time*2);saveRank(el);$('summary').innerHTML=`<p><b>${G.name}</b></p><p>Kelas: ${G.kelas}</p><p>Aktiviti: ${G.activities}/5</p><p>Kristal: ${G.crystals}/5</p><p>Soalan: ${G.answered}/15</p><p>Masa: ${fmt(el)}</p><p>Markah: ${G.score}</p>`;$('result').classList.remove('hidden')}
+function finish(gameOver=false){if(G.done)return;G.done=true;stopMusic();const el=Math.min(900,900-G.time);G.score+=Math.floor(G.time*2);saveRank(el);$('summary').innerHTML=`<p><b>${gameOver?'💔 GAME OVER':'🏆 '+G.name}</b></p><p>Kelas: ${G.kelas}</p><p>Nyawa: ${G.lives}</p><p>Bonus dikutip: ${G.collectibles.size}</p><p>Aktiviti: ${G.activities}/5</p><p>Kristal: ${G.crystals}/5</p><p>Soalan: ${G.answered}/15</p><p>Masa: ${fmt(el)}</p><p>Markah: ${G.score}</p>`;$('result').classList.remove('hidden')}
 function showRanks(){const a=ranks();$('rankList').innerHTML=`<div class="rank-row head"><div>No.</div><div>Nama / Kelas</div><div>Markah</div><div>Masa</div></div>`+(a.length?a.map((r,i)=>`<div class="rank-row"><div>${i<3?['🥇','🥈','🥉'][i]:i+1}</div><div><b>${r.n}</b><br><small>${r.k}</small></div><div>${r.s}</div><div>${fmt(r.t)}</div></div>`).join(''):'<p>Belum ada rekod.</p>');$('ranking').classList.remove('hidden')}
 
-$('startBtn').onclick=()=>{const n=$('nameInput').value.trim();if(!n)return alert('Masukkan nama murid.');G.name=n;G.kelas=$('classInput').value.trim()||'-';G.run=true;G.start=performance.now();$('hn').textContent=n;$('start').classList.add('hidden');$('hud').classList.remove('hidden');$('mission').classList.remove('hidden');$('controls').classList.remove('hidden');$('tip').classList.remove('hidden');setPlayer();updateCamera();startMusic();mission();refresh()}
+$('startBtn').onclick=()=>{const n=$('nameInput').value.trim();if(!n)return alert('Masukkan nama murid.');G.name=n;G.kelas=$('classInput').value.trim()||'-';G.run=true;G.start=performance.now();G.bonusTime=0;$('hn').textContent=n;$('start').classList.add('hidden');$('hud').classList.remove('hidden');$('mission').classList.remove('hidden');$('controls').classList.remove('hidden');$('tip').classList.remove('hidden');setPlayer();updateCamera();startMusic();mission();refresh()}
 $('sound').onclick=()=>{G.sound=!G.sound;$('sound').textContent=G.sound?'🔊':'🔇';if(G.sound)startMusic();else stopMusic()}
 $('closeDialog').onclick=()=>$('dialog').classList.add('hidden');$('interact').onpointerdown=interact;$('rankStart').onclick=showRanks;$('rankResult').onclick=showRanks;$('closeRank').onclick=()=>$('ranking').classList.add('hidden');$('clearRank').onclick=()=>{if(confirm('Padam ranking?')){localStorage.removeItem('greekUltimateRank');showRanks()}}
 addEventListener('keydown',e=>{G.keys[e.key]=true;if(e.key==='e'||e.key==='E'||e.key===' ')interact()});addEventListener('keyup',e=>G.keys[e.key]=false)
@@ -315,6 +338,6 @@ let joyv={x:0,y:0},active=false,j=$('joy'),st=$('stick');
 function setJoy(e){const r=j.getBoundingClientRect();let dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,m=35,l=Math.hypot(dx,dy)||1;if(l>m){dx=dx/l*m;dy=dy/l*m}st.style.left=31+dx+'px';st.style.top=31+dy+'px';joyv={x:dx/m,y:dy/m}}
 j.onpointerdown=e=>{active=true;j.setPointerCapture(e.pointerId);setJoy(e)};j.onpointermove=e=>{if(active)setJoy(e)};j.onpointerup=j.onpointercancel=()=>{active=false;joyv={x:0,y:0};st.style.left='31px';st.style.top='31px'}
 
-let last=performance.now();function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;update(dt);requestAnimationFrame(loop)}requestAnimationFrame(loop)
+let last=performance.now();function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;animateNPCs(now);update(dt);requestAnimationFrame(loop)}requestAnimationFrame(loop)
 </script>
 </body></html>
