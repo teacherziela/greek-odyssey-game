@@ -13,6 +13,8 @@
 html,body{margin:0;background:#030913;font-family:Inter,Segoe UI,Arial,sans-serif;overflow:hidden}
 body{min-height:100vh;display:flex;align-items:center;justify-content:center}
 #app{position:relative;width:min(100vw,1280px);aspect-ratio:16/9;overflow:hidden;background:#081726}
+
+.activityBox{background:#0d2238;border:1px solid #557a9d;border-radius:16px;padding:14px;margin-top:10px}.activityArena{position:relative;height:220px;border-radius:14px;background:linear-gradient(#89d0ef,#79b96e 35% 100%);overflow:hidden;border:2px solid #7aa3c4}.activityItem{position:absolute;display:flex;align-items:center;justify-content:center;font-size:34px;cursor:pointer;user-select:none}.scroll{width:54px;height:44px;background:#f6d494;border:3px solid #9e6632;border-radius:10px}.runner{width:46px;height:46px;border-radius:50%;background:#f2c04f;border:4px solid #8c5814}.spear{width:70px;height:10px;background:#a97135;border-radius:5px}.sequence{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}.seqCard{padding:12px 14px;background:#253e59;border:1px solid #5d84a9;border-radius:10px;cursor:pointer}.block{position:absolute;width:70px;height:70px;background:#e9d09c;border:4px solid #9b6b31;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:34px;cursor:pointer}
 .hidden{display:none!important}
 button,input{font:inherit}
 button{cursor:pointer}
@@ -195,12 +197,12 @@ button.danger{background:linear-gradient(#b74747,#762020);box-shadow:0 5px 0 #3e
   <div id="architect" class="character npc" style="left:1080px;top:1080px;animation-delay:1.5s"><i class="shadow"></i><i class="body"></i><i class="head"></i><i class="hair"></i><i class="arm l"></i><i class="arm r"></i><i class="leg l"></i><i class="leg r"></i><b class="name">Arkitek</b></div>
 </div></div>
 
-<div id="hud" class="hidden"><div class="brand">GREEK ODYSSEY ULTIMATE</div><div class="pill">👤 <span id="hn"></span></div><div class="pill">⭐ <span id="score">0</span></div><div class="pill">💎 <span id="crystals">0</span>/5</div><div class="pill">❓ <span id="answered">0</span>/15</div><div class="pill">⏱ <span id="timer">12:00</span></div><button id="sound" class="pill">🔊</button></div>
+<div id="hud" class="hidden"><div class="brand">GREEK ODYSSEY ULTIMATE</div><div class="pill">👤 <span id="hn"></span></div><div class="pill">⭐ <span id="score">0</span></div><div class="pill">💎 <span id="crystals">0</span>/5</div><div class="pill">❓ <span id="answered">0</span>/15</div><div class="pill">🎯 <span id="activities">0</span>/5</div><div class="pill">⏱ <span id="timer">15:00</span></div><button id="sound" class="pill">🔊</button></div>
 <div id="mission" class="hidden"><small>MISI SEMASA</small><b id="missionText">Pergi ke Agora Athens dan jawab 3 soalan Socrates.</b></div>
 
-<div id="start" class="overlay"><div class="panel"><div class="crest">🏛️</div><h1>GREEK ODYSSEY</h1><h2>Ultimate Edition</h2><p>Satu fail sahaja. Tidak perlu Netlify, tidak perlu folder aset. GitHub Pages pun boleh.</p><input id="nameInput" placeholder="Nama murid"><input id="classInput" placeholder="Kelas"><button id="startBtn">MULA PENGEMBARAAN</button><button id="rankStart" class="dark">🏆 LIHAT RANKING</button></div></div>
+<div id="start" class="overlay"><div class="panel"><div class="crest">🏛️</div><h1>GREEK ODYSSEY</h1><h2>Ultimate Edition</h2><p>Setiap stesen ada aktiviti ringkas dahulu, kemudian 3 soalan mencabar. Jawapan berubah kedudukan setiap kali.</p><input id="nameInput" placeholder="Nama murid"><input id="classInput" placeholder="Kelas"><button id="startBtn">MULA PENGEMBARAAN</button><button id="rankStart" class="dark">🏆 LIHAT RANKING</button></div></div>
 
-<div id="dialog" class="dialog hidden"><div class="portrait" id="portrait">👴</div><div style="flex:1"><h3 id="npcName"></h3><div id="progress" style="color:#9ed7ff;font-weight:900;margin:5px 0 8px"></div><p id="questionText"></p><div id="answers"></div><button id="closeDialog" class="dark">Tutup</button></div></div>
+<div id="dialog" class="dialog hidden"><div class="portrait" id="portrait">👴</div><div style="flex:1"><h3 id="npcName"></h3><div id="progress" style="color:#9ed7ff;font-weight:900;margin:5px 0 8px"></div><p id="questionText"></p><div id="activityArea"></div><div id="answers"></div><button id="closeDialog" class="dark">Tutup</button></div></div>
 <div id="toast" class="toast hidden"></div>
 
 <div id="result" class="overlay hidden"><div class="panel"><h1>🏆 MISI TAMAT</h1><div id="summary"></div><button id="rankResult">LIHAT RANKING</button><button class="dark" onclick="location.reload()">MAIN SEMULA</button></div></div>
@@ -213,29 +215,29 @@ button.danger{background:linear-gradient(#b74747,#762020);box-shadow:0 5px 0 #3e
 <script>
 const $=id=>document.getElementById(id);
 const map=$('map'),player=$('player');
-const G={run:false,done:false,name:'',kelas:'',x:500,y:760,score:0,crystals:0,answered:0,time:720,start:0,keys:{},sound:true,camX:0,camY:0,completed:new Set(),idx:{agora:0,academy:0,olympia:0,sparta:0,parthenon:0}};
+const G={run:false,done:false,name:'',kelas:'',x:500,y:760,score:0,crystals:0,answered:0,activities:0,time:900,start:0,keys:{},sound:true,camX:0,camY:0,completed:new Set(),activityDone:new Set(),idx:{agora:0,academy:0,olympia:0,sparta:0,parthenon:0}};
 const stations=[
-{id:'agora',el:'socrates',npc:'Socrates',icon:'👴',x:335,y:730,zone:'Agora Athens',q:[
+{id:'agora',el:'socrates',npc:'Socrates',icon:'👴',x:335,y:730,zone:'Agora Athens',activity:'scrolls',activityText:'Kutip 5 gulungan ilmu sebelum menjawab soalan.',q:[
 ['Mengapakah demokrasi Athens penting kepada politik moden?',[['Rakyat terlibat dalam membuat keputusan negara',1],['Tentera menguasai semua urusan negara',0],['Undang-undang tidak lagi diperlukan',0]]],
 ['Apakah kelemahan utama demokrasi Athens jika dinilai hari ini?',[['Wanita, hamba dan orang asing tidak diberikan hak politik',1],['Semua rakyat diwajibkan menjadi pelaut',0],['Tiada perhimpunan pernah diadakan',0]]],
 ['Tindakan moden yang paling menepati semangat demokrasi Athens ialah...',[['Membuka ruang perbincangan dan penyertaan rakyat',1],['Menghalang pandangan rakyat',0],['Menyerahkan semua kuasa kepada seorang individu',0]]]
 ]},
-{id:'academy',el:'plato',npc:'Plato',icon:'📜',x:1045,y:420,zone:"Plato's Academy",q:[
+{id:'academy',el:'plato',npc:'Plato',icon:'📜',x:1045,y:420,zone:"Plato's Academy",activity:'sequence',activityText:'Susun langkah pemikiran kritis dengan urutan yang betul.',q:[
 ['Mengapakah kaedah bertanya soalan penting dalam pemikiran Socrates?',[['Membantu menilai alasan dan mencari kebenaran',1],['Memastikan semua orang menerima pendapat sama',0],['Menggantikan keperluan belajar',0]]],
 ['Kesan keputusan dibuat tanpa pemikiran rasional ialah...',[['Masyarakat mudah menerima dakwaan tanpa bukti',1],['Semua masalah selesai lebih cepat',0],['Kemajuan berlaku secara automatik',0]]],
 ['Warisan falsafah Yunani membantu murid dengan cara...',[['Mendorong pemikiran kritis sebelum membuat kesimpulan',1],['Menggalakkan hafalan tanpa memahami',0],['Melarang murid bertanya',0]]]
 ]},
-{id:'olympia',el:'athlete',npc:'Atlet Olympia',icon:'🏃',x:1825,y:510,zone:'Olympia',q:[
+{id:'olympia',el:'athlete',npc:'Atlet Olympia',icon:'🏃',x:1825,y:510,zone:'Olympia',activity:'race',activityText:'Tekan butang secepat mungkin untuk menamatkan larian Olimpik.',q:[
 ['Nilai terpenting daripada Sukan Olimpik ialah...',[['Persaingan sihat, disiplin dan semangat kesukanan',1],['Kemenangan melalui apa-apa cara',0],['Permusuhan antara peserta',0]]],
 ['Mengapakah acara sukan membantu menyatukan masyarakat Yunani?',[['Mereka berkongsi acara dan identiti budaya yang sama',1],['Semua negara kota kehilangan pemerintah',0],['Pertandingan menghentikan pendidikan',0]]],
 ['Kesan jika semangat pertandingan disalahgunakan ialah...',[['Persaingan boleh bertukar menjadi permusuhan dan penipuan',1],['Kerjasama pasti meningkat',0],['Semua peserta mendapat keputusan sama',0]]]
 ]},
-{id:'sparta',el:'leonidas',npc:'Leonidas',icon:'⚔️',x:1845,y:1100,zone:'Sparta',q:[
+{id:'sparta',el:'leonidas',npc:'Leonidas',icon:'⚔️',x:1845,y:1100,zone:'Sparta',activity:'dodge',activityText:'Elakkan 5 lembing dengan bergerak kiri atau kanan.',q:[
 ['Kesimpulan terbaik tentang Athens dan Sparta ialah...',[['Keutamaan negara membentuk corak masyarakatnya',1],['Semua negara kota mempunyai cara hidup sama',0],['Pendidikan tidak mempengaruhi kekuatan negara',0]]],
 ['Risiko jika masyarakat hanya menekankan kekuatan tentera ialah...',[['Ilmu, seni dan kebebasan masyarakat mungkin terabai',1],['Semua rakyat menjadi lebih kreatif',0],['Perdagangan pasti meningkat',0]]],
 ['Gabungan kekuatan Athens dan Sparta yang sesuai untuk negara moden ialah...',[['Ilmu, penyertaan rakyat, disiplin dan pertahanan seimbang',1],['Tentera mengawal semua institusi',0],['Rakyat tidak terlibat dalam pemerintahan',0]]]
 ]},
-{id:'parthenon',el:'architect',npc:'Arkitek Parthenon',icon:'🏛️',x:1115,y:1120,zone:'Parthenon',q:[
+{id:'parthenon',el:'architect',npc:'Arkitek Parthenon',icon:'🏛️',x:1115,y:1120,zone:'Parthenon',activity:'puzzle',activityText:'Bina Parthenon dengan memilih tiga bahagian yang betul.',q:[
 ['Mengapakah Parthenon menjadi bukti kemajuan Tamadun Yunani?',[['Pembinaannya memerlukan ilmu, teknologi dan perancangan teratur',1],['Ia dibina tanpa ukuran',0],['Ia hanya membuktikan kekuatan tentera',0]]],
 ['Kepentingan memelihara bangunan warisan ialah...',[['Menjadi sumber sejarah, pendidikan dan identiti tamadun',1],['Supaya bangunan moden tidak dibina',0],['Untuk menghalang kajian',0]]],
 ['Kesan jika warisan seni bina diabaikan ialah...',[['Bukti sejarah dan pengetahuan generasi terdahulu boleh hilang',1],['Masyarakat memahami sejarah dengan lebih tepat',0],['Identiti budaya menjadi semakin kukuh',0]]]
@@ -251,6 +253,7 @@ function stopMusic(){clearInterval(musicTimer);musicTimer=null}
 function correctSound(){[523,659,784,1047].forEach((f,i)=>tone(f,.2,'sine',.05,i*.12))}
 function wrongSound(){tone(170,.24,'sawtooth',.05);tone(110,.3,'sawtooth',.04,.12)}
 
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
 function setPlayer(){
  player.style.left=G.x+'px';player.style.top=G.y+'px';player.querySelector('.name').textContent=G.name;
 }
@@ -266,24 +269,33 @@ function update(dt){
  let dx=0,dy=0;if(G.keys.ArrowLeft||G.keys.a)dx--;if(G.keys.ArrowRight||G.keys.d)dx++;if(G.keys.ArrowUp||G.keys.w)dy--;if(G.keys.ArrowDown||G.keys.s)dy++;dx+=joyv.x;dy+=joyv.y;
  const l=Math.hypot(dx,dy);if(l){dx/=l;dy/=l;G.x+=dx*250*dt;G.y+=dy*250*dt;player.classList.add('walk')}else player.classList.remove('walk');
  G.x=Math.max(20,Math.min(2140,G.x));G.y=Math.max(80,Math.min(1320,G.y));setPlayer();updateCamera();
- G.time=Math.max(0,720-(performance.now()-G.start)/1000);if(G.time<=0)finish();refresh();
+ G.time=Math.max(0,900-(performance.now()-G.start)/1000);if(G.time<=0)finish();refresh();
 }
-function refresh(){ $('score').textContent=G.score;$('crystals').textContent=G.crystals;$('answered').textContent=G.answered;const m=Math.floor(G.time/60),s=Math.floor(G.time%60);$('timer').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` }
-function mission(){const s=stations.find(v=>!G.completed.has(v.id));$('missionText').textContent=s?`Pergi ke ${s.zone} dan jawab 3 soalan ${s.npc}.`:'Semua stesen selesai!'}
+function refresh(){ $('score').textContent=G.score;$('crystals').textContent=G.crystals;$('answered').textContent=G.answered;$('activities').textContent=G.activities;const m=Math.floor(G.time/60),s=Math.floor(G.time%60);$('timer').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` }
+function mission(){const s=stations.find(v=>!G.completed.has(v.id));$('missionText').textContent=s?`Pergi ke ${s.zone}. Selesaikan aktiviti dan 3 soalan ${s.npc}.`:'Semua stesen selesai!'}
 function interact(){
  if(!G.run)return;let st=null,d=90;stations.forEach(s=>{const z=Math.hypot(G.x-s.x,G.y-s.y);if(z<d){d=z;st=s}});if(!st){toast('Dekati NPC dahulu',false);return}openStation(st)
 }
 function openStation(st){
- const i=G.idx[st.id];$('portrait').textContent=st.icon;$('npcName').textContent=`${st.npc} • ${st.zone}`;$('answers').innerHTML='';
+ $('portrait').textContent=st.icon;$('npcName').textContent=`${st.npc} • ${st.zone}`;$('answers').innerHTML='';$('activityArea').innerHTML='';
  if(G.completed.has(st.id)){$('progress').textContent='✅ STESEN SELESAI 3/3';$('questionText').textContent='Anda telah menguasai stesen ini.';$('dialog').classList.remove('hidden');return}
- $('progress').textContent=`SOALAN ${i+1} DARIPADA 3`;$('questionText').textContent=st.q[i][0];
- st.q[i][1].forEach(([t,ok])=>{const b=document.createElement('button');b.className='answer';b.textContent=t;b.onclick=()=>answer(st,ok,b);$('answers').appendChild(b)});
- $('dialog').classList.remove('hidden')
+ if(!G.activityDone.has(st.id)){startActivity(st);$('dialog').classList.remove('hidden');return}
+ showQuestion(st);$('dialog').classList.remove('hidden')
 }
+function activityComplete(st){G.activityDone.add(st.id);G.activities++;G.score+=150;correctSound();toast('AKTIVITI SELESAI! 🎯',true);refresh();setTimeout(()=>showQuestion(st),700)}
+function startActivity(st){
+ $('progress').textContent='AKTIVITI STESEN';$('questionText').textContent=st.activityText;$('answers').innerHTML='';const area=$('activityArea');area.innerHTML='<div class="activityBox" id="actBox"></div>';const box=$('actBox');
+ if(st.activity==='scrolls'){box.innerHTML='<div class="activityArena" id="arena"></div><p id="actInfo">0/5 gulungan dikutip</p>';const ar=$('arena');let count=0;for(let i=0;i<5;i++){const el=document.createElement('div');el.className='activityItem scroll';el.textContent='📜';el.style.left=(8+Math.random()*82)+'%';el.style.top=(8+Math.random()*72)+'%';el.onclick=()=>{el.remove();count++;$('actInfo').textContent=count+'/5 gulungan dikutip';if(count===5)activityComplete(st)};ar.appendChild(el)}}
+ if(st.activity==='sequence'){const cards=shuffle(['Bertanya','Mencari bukti','Menilai alasan','Membuat kesimpulan']);box.innerHTML='<div class="sequence" id="seq"></div><p>Klik ikut urutan pemikiran kritis</p>';let chosen=[];cards.forEach(t=>{const el=document.createElement('div');el.className='seqCard';el.textContent=t;el.onclick=()=>{if(el.dataset.done)return;el.dataset.done=1;el.style.opacity=.45;chosen.push(t);if(chosen.length===4){if(chosen.join('|')==='Bertanya|Mencari bukti|Menilai alasan|Membuat kesimpulan')activityComplete(st);else{wrongSound();toast('URUTAN BELUM TEPAT',false);setTimeout(()=>startActivity(st),650)}}};$('seq').appendChild(el)})}
+ if(st.activity==='race'){box.innerHTML='<div class="activityArena"><div id="runner" class="activityItem runner" style="left:5%;top:82px">🏃</div></div><button id="runBtn">TEKAN LAJU!</button><p id="actInfo">Kemajuan 0%</p>';let p=0;$('runBtn').onclick=()=>{p+=9+Math.random()*5;p=Math.min(100,p);$('runner').style.left=(5+p*.84)+'%';$('actInfo').textContent='Kemajuan '+Math.floor(p)+'%';tone(400+p*2,.05,'square',.02);if(p>=100)activityComplete(st)}}
+ if(st.activity==='dodge'){box.innerHTML='<div class="activityArena" id="arena"><div id="hero" class="activityItem runner" style="left:46%;top:165px">🛡️</div></div><button id="leftBtn">⬅ KIRI</button> <button id="rightBtn">KANAN ➡</button><p id="actInfo">Elak 0/5 lembing</p>';let lane=1,score=0,round=0;const hero=$('hero');function next(){if(round>=5){if(score>=3)activityComplete(st);else setTimeout(()=>startActivity(st),500);return}round++;const spear=document.createElement('div');spear.className='activityItem spear';const target=Math.floor(Math.random()*3);spear.style.left=[18,46,74][target]+'%';spear.style.top='8px';$('arena').appendChild(spear);setTimeout(()=>{if(target===lane){wrongSound();toast('TERKENA LEMBING!',false)}else{score++;$('actInfo').textContent='Elak '+score+'/5 lembing'}spear.remove();next()},650)}$('leftBtn').onclick=()=>{lane=Math.max(0,lane-1);hero.style.left=[18,46,74][lane]+'%'};$('rightBtn').onclick=()=>{lane=Math.min(2,lane+1);hero.style.left=[18,46,74][lane]+'%'};next()}
+ if(st.activity==='puzzle'){box.innerHTML='<div class="activityArena" id="arena"></div><p>Pilih bumbung, tiang dan tangga</p>';const items=shuffle([['🔺','roof'],['🏺','wrong'],['🏛️','col'],['⚔️','wrong'],['🪜','step']]);let selected=[];items.forEach(([t,v],i)=>{const el=document.createElement('div');el.className='block';el.textContent=t;el.style.left=(8+(i%3)*30)+'%';el.style.top=(12+Math.floor(i/3)*45)+'%';el.onclick=()=>{if(el.dataset.done)return;el.dataset.done=1;el.style.opacity=.45;selected.push(v);if(selected.length===3){if(['roof','col','step'].every(x=>selected.includes(x)))activityComplete(st);else{wrongSound();toast('BAHAGIAN BELUM TEPAT',false);setTimeout(()=>startActivity(st),650)}}};$('arena').appendChild(el)})}
+}
+function showQuestion(st){const i=G.idx[st.id];$('activityArea').innerHTML='';$('answers').innerHTML='';$('progress').textContent=`SOALAN ${i+1} DARIPADA 3`;$('questionText').textContent=st.q[i][0];shuffle(st.q[i][1]).forEach(([t,ok],idx)=>{const b=document.createElement('button');b.className='answer';b.textContent=String.fromCharCode(65+idx)+'. '+t;b.onclick=()=>answer(st,ok,b);$('answers').appendChild(b)})}
 function answer(st,ok,b){
  if(ok){G.score+=220+Math.floor(G.time/12);G.answered++;G.idx[st.id]++;correctSound();toast('CORRECT! 🎉',true);
    if(G.idx[st.id]>=3){G.completed.add(st.id);G.crystals++;$('progress').textContent='✅ STESEN SELESAI 3/3';$('questionText').textContent=`Kristal ${st.zone} diperoleh!`;$('answers').innerHTML='';mission();if(G.completed.size===5)setTimeout(finish,900)}
-   else setTimeout(()=>openStation(st),850)
+   else setTimeout(()=>showQuestion(st),850)
  }else{G.score=Math.max(0,G.score-40);wrongSound();toast('WRONG! 😱',false);b.textContent='❌ Cuba pilihan lain';b.disabled=true}
  refresh()
 }
@@ -291,7 +303,7 @@ function toast(t,ok){const e=$('toast');e.textContent=t;e.className='toast '+(ok
 function fmt(t){return `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`}
 function ranks(){return JSON.parse(localStorage.getItem('greekUltimateRank')||'[]')}
 function saveRank(el){const a=ranks();a.push({n:G.name,k:G.kelas,s:G.score,t:el});a.sort((x,y)=>y.s-x.s||x.t-y.t);localStorage.setItem('greekUltimateRank',JSON.stringify(a.slice(0,30)))}
-function finish(){if(G.done)return;G.done=true;stopMusic();const el=Math.min(720,720-G.time);G.score+=Math.floor(G.time*2);saveRank(el);$('summary').innerHTML=`<p><b>${G.name}</b></p><p>Kelas: ${G.kelas}</p><p>Kristal: ${G.crystals}/5</p><p>Soalan: ${G.answered}/15</p><p>Masa: ${fmt(el)}</p><p>Markah: ${G.score}</p>`;$('result').classList.remove('hidden')}
+function finish(){if(G.done)return;G.done=true;stopMusic();const el=Math.min(900,900-G.time);G.score+=Math.floor(G.time*2);saveRank(el);$('summary').innerHTML=`<p><b>${G.name}</b></p><p>Kelas: ${G.kelas}</p><p>Aktiviti: ${G.activities}/5</p><p>Kristal: ${G.crystals}/5</p><p>Soalan: ${G.answered}/15</p><p>Masa: ${fmt(el)}</p><p>Markah: ${G.score}</p>`;$('result').classList.remove('hidden')}
 function showRanks(){const a=ranks();$('rankList').innerHTML=`<div class="rank-row head"><div>No.</div><div>Nama / Kelas</div><div>Markah</div><div>Masa</div></div>`+(a.length?a.map((r,i)=>`<div class="rank-row"><div>${i<3?['🥇','🥈','🥉'][i]:i+1}</div><div><b>${r.n}</b><br><small>${r.k}</small></div><div>${r.s}</div><div>${fmt(r.t)}</div></div>`).join(''):'<p>Belum ada rekod.</p>');$('ranking').classList.remove('hidden')}
 
 $('startBtn').onclick=()=>{const n=$('nameInput').value.trim();if(!n)return alert('Masukkan nama murid.');G.name=n;G.kelas=$('classInput').value.trim()||'-';G.run=true;G.start=performance.now();$('hn').textContent=n;$('start').classList.add('hidden');$('hud').classList.remove('hidden');$('mission').classList.remove('hidden');$('controls').classList.remove('hidden');$('tip').classList.remove('hidden');setPlayer();updateCamera();startMusic();mission();refresh()}
